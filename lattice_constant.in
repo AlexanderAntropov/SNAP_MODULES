@@ -1,0 +1,36 @@
+label       loop
+variable    delta loop 20
+
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable d equal ${delta}*0.005
+variable a equal 4.8+$d 
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	2 box
+create_atoms 1 box
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+group nitro type 2
+mass 1 238.02
+mass 2 14.0067
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N
+
+thermo 1
+run		0
+variable fe equal pe
+print "ENERGY ${a} ${fe} "
+
+clear
+
+next        delta
+jump        SELF loop

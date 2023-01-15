@@ -1,0 +1,544 @@
+variable CurTemp equal $T
+variable ceed equal 74651
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	2 box
+create_atoms 1 box
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 35 # 865
+#delete_atoms group del
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+group nitro type 2
+mass 1 238.02
+mass 2 14.0067
+velocity	all create ${CurTemp} ${ceed}
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N
+
+thermo 1
+fix mom all momentum 10 linear 1 1 1
+dump myDump all custom 1 ideal_relax.dump  id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+
+clear
+
+variable CurTemp equal $T
+variable ceed equal 74651
+
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	2 box
+create_atoms 1 box
+
+
+
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 1 # 865
+delete_atoms group del
+
+read_dump Cold_VASP/XDATCAR_Uvac.dump  0 x y z box yes purge yes replace no trim no add yes
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+
+group metal type 1
+group nitro type 2
+mass 1 238.02
+mass 2 14.0067
+
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N
+
+thermo 1
+
+fix mom all momentum 10 linear 1 1 1
+
+dump myDump all custom 1 Uvac_relax.dump  id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+
+clear 
+
+variable CurTemp equal $T
+variable ceed equal 74651
+
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	2 box
+create_atoms 1 box
+
+
+
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 35 # 865
+delete_atoms group del
+
+read_dump Cold_VASP/XDATCAR_Nvac.dump  0 x y z box yes purge yes replace no trim no add yes
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+
+group metal type 1
+group nitro type 2
+mass 1 238.02
+mass 2 14.0067
+
+
+velocity	all create ${CurTemp} ${ceed}
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N
+
+thermo 1
+
+fix mom all momentum 10 linear 1 1 1
+
+dump myDump all custom 1 Nvac_relax.dump id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+clear
+
+
+variable CurTemp equal $T
+variable ceed equal 74651
+
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	2 box
+create_atoms 1 box
+
+
+
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 35 # 865
+#delete_atoms group del
+
+#create_atoms 1 single 1.9 1.9 1.9
+#create_atoms 1 single 0.1 0.1 0.1
+create_atoms 1 single 0.25 0.25 0.25
+
+read_dump Cold_VASP/XDATCAR_Uint.dump  0 x y z box yes purge yes replace no trim no add yes
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+
+group metal type 1
+group nitro type 2
+mass 1 238.02
+mass 2 14.0067
+
+
+velocity	all create ${CurTemp} ${ceed}
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N
+
+thermo 1
+
+fix mom all momentum 10 linear 1 1 1
+
+dump myDump all custom 1 Uint_relax.dump id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+
+
+clear
+
+variable CurTemp equal $T
+variable ceed equal 74651
+
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	2 box
+create_atoms 1 box
+
+
+
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 35 # 865
+#delete_atoms group del
+
+#create_atoms 1 single 1.9 1.9 1.9
+#create_atoms 1 single 0.1 0.1 0.1
+create_atoms 2 single 0.25 0.25 0.25
+
+read_dump Cold_VASP/XDATCAR_Nint.dump  0 x y z box yes purge yes replace no trim no add yes
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+
+group metal type 1
+group nitro type 2
+mass 1 238.02
+mass 2 14.0067
+
+
+velocity	all create ${CurTemp} ${ceed}
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N
+
+thermo 1
+
+fix mom all momentum 10 linear 1 1 1
+
+dump myDump all custom 1 Nint_relax.dump id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+
+clear 
+
+variable CurTemp equal $T
+variable ceed equal 74651
+
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	2 box
+create_atoms 1 box
+
+
+
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 1 # 865
+delete_atoms group del
+
+create_atoms 1 single 1.9 1.9 1.9
+create_atoms 1 single 0.1 0.1 0.1
+#create_atoms 2 single 0.25 0.25 0.25
+
+read_dump Cold_VASP/XDATCAR_U-DD.dump  0 x y z box yes purge yes replace no trim no add yes
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+
+group metal type 1
+group nitro type 2
+mass 1 238.02
+mass 2 14.0067
+
+
+velocity	all create ${CurTemp} ${ceed}
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N
+
+thermo 1
+
+fix mom all momentum 1 linear 1 1 1
+
+dump myDump all custom 1 U-DD_relax.dump id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+
+clear
+
+###########################################
+###########################################
+###########################################
+###########################################
+###########################################
+###########################################
+###########################################
+
+
+variable CurTemp equal $T
+variable ceed equal 74651
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	3 box
+create_atoms 1 box
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 35 # 865
+#delete_atoms group del
+
+create_atoms 3 single 0.25 0.25 0.25
+
+read_dump Cold_VASP/XDATCAR_Xe_int.dump  0 x y z box yes purge yes replace no trim no add yes
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+group nitro type 2
+group xenon type 3
+mass 1 238.02
+mass 2 14.0067
+mass 3 131.293
+velocity	all create ${CurTemp} ${ceed}
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N Xe
+
+thermo 1
+fix mom all momentum 10 linear 1 1 1
+dump myDump all custom 1 Xe_int_relax.dump id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+
+clear
+
+#########################
+
+variable CurTemp equal $T
+variable ceed equal 74651
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	3 box
+create_atoms 1 box
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 1 # 865
+delete_atoms group del
+
+create_atoms 3 single 0.0 0.0 0.0
+
+read_dump Cold_VASP/XDATCAR_Xe_in_U.dump  0 x y z box yes purge yes replace no trim no add yes
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+group nitro type 2
+group xenon type 3
+mass 1 238.02
+mass 2 14.0067
+mass 3 131.293
+velocity	all create ${CurTemp} ${ceed}
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N Xe
+
+thermo 1
+fix mom all momentum 10 linear 1 1 1
+dump myDump all custom 1 Xe_in_U_relax.dump id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+
+clear
+
+#################
+
+variable CurTemp equal $T
+variable ceed equal 74651
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	3 box
+create_atoms 1 box
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 64 # 865
+delete_atoms group del
+
+create_atoms 3 single 1.5 1.5 1.5
+
+read_dump Cold_VASP/XDATCAR_Xe_in_N.dump  0 x y z box yes purge yes replace no trim no add yes
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+group nitro type 2
+group xenon type 3
+mass 1 238.02
+mass 2 14.0067
+mass 3 131.293
+velocity	all create ${CurTemp} ${ceed}
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N Xe
+
+thermo 1
+fix mom all momentum 10 linear 1 1 1
+dump myDump all custom 1 Xe_in_N_relax.dump id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+
+clear
+
+#################
+
+variable CurTemp equal $T
+variable ceed equal 74651
+units		metal
+atom_style	atomic
+boundary    p p p
+
+variable a universe  4.85
+lattice		fcc $a
+region		box block 0 2 0 2 0 2
+create_box	3 box
+create_atoms 1 box
+lattice		fcc $a origin 0.5 0.0 0.0
+create_atoms 2 box
+
+group del id 1 33 # 865
+delete_atoms group del
+
+create_atoms 3 single 0.0 0.0 0.0
+
+read_dump Cold_VASP/XDATCAR_Xe_in_UN.dump  0 x y z box yes purge yes replace no trim no add yes
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+group nitro type 2
+group xenon type 3
+mass 1 238.02
+mass 2 14.0067
+mass 3 131.293
+velocity	all create ${CurTemp} ${ceed}
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N Xe
+
+thermo 1
+fix mom all momentum 10 linear 1 1 1
+dump myDump all custom 1 Xe_in_UN_relax.dump id type xu yu zu
+compute msd_c all msd # com yes
+thermo_style custom step pe c_msd_c[4]
+minimize 1.0e-11 1.0e-11 100 1000
+
+run		0
+
+variable fe equal pe
+variable vmsd equal c_msd_c[4]
+print "ENERGY and MSD ${fe} ${vmsd}"
+
+clear
