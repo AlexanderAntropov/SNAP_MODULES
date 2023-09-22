@@ -1,0 +1,54 @@
+variable ceed equal 74651
+units		metal
+atom_style	atomic
+boundary    p p p
+atom_modify	map array sort 0 0.0
+
+variable	u uloop 20
+
+lattice		sc 1.0
+region		box block 0 1 0 1 0 1
+create_box	2 box
+
+read_dump ${init}  0 x y z box yes add yes
+change_box all x scale ${cell_scale} y scale ${cell_scale} z scale ${cell_scale}
+mass 1 238.02
+mass 2 14.0067
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+group nitro type 2
+
+pair_style snap
+pair_coeff * * ./SNAPotential.snapcoeff ./SNAPotential.snapparam U N
+
+thermo 1
+
+# Make little random shifts to exclude unrealistic symmetry of reaction path
+
+velocity	all create 100 ${ceed}
+fix nvef all nve
+run 2
+unfix nvef
+
+reset_timestep	0
+
+group		nebatoms id ${nebid}
+fix		fixneb nebatoms neb 1.0 parallel ideal
+
+group		nomove id 18 29
+fix		freeze nomove setforce 0.0 0.0 0.0
+
+thermo		100
+
+dump		1 all custom 5 dump.neb.$u  id type xu yu zu
+
+# run NEB for 2000 steps or to force tolerance
+
+min_style	quickmin
+
+neb		0.0 0.01 200 0 1 final ${final}
+
+clear 

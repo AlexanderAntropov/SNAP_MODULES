@@ -1,0 +1,129 @@
+LAMMPS (14 Dec 2021)
+KOKKOS mode is enabled (src/KOKKOS/kokkos.cpp:105)
+  will use up to 1 GPU(s) per node
+  using 1 OpenMP thread(s) per MPI task
+package kokkos
+package kokkos newton on neigh half
+
+variable time equal 5000
+
+variable T equal 2800
+variable CurTemp equal $T
+variable CurTemp equal 2800
+variable press equal 1.0
+variable ceed equal 74651
+
+
+units		metal
+atom_style	atomic
+boundary    p p p
+
+read_data two_phase_2023.data
+Reading data file ...
+  orthogonal box = (0 -0.05 -2.6112295) to (14.55 20.047062 62.602416)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  1224 atoms
+  reading velocities ...
+  1224 velocities
+  read_data CPU = 0.022 seconds
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+612 atoms in group metal
+group nitro type 2
+612 atoms in group nitro
+mass 1 238.02
+mass 2 14.0067
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N
+SNAP Element = U, Radius 4.5, Weight 1
+SNAP Element = N, Radius 6.12, Weight 0.46
+SNAP keyword rcutfac 0.5
+SNAP keyword twojmax 6
+SNAP keyword rfac0 0.99363
+SNAP keyword rmin0 0
+SNAP keyword quadraticflag 1
+SNAP keyword bzeroflag 0
+
+
+velocity	all create ${CurTemp} ${ceed}
+velocity	all create 2800 ${ceed}
+velocity	all create 2800 74651
+
+thermo 1000
+thermo_style custom step time temp pe etotal press vol
+fix mom all momentum 10 linear 1 1 1
+
+compute     unX all property/atom xu yu zu
+
+fix avepos all ave/atom 1 1000 1000 c_unX[1] c_unX[2] c_unX[3]
+fix 1 all ave/time 1 500 1000 c_thermo_temp c_thermo_press file temp.profile_${CurTemp}
+fix 1 all ave/time 1 500 1000 c_thermo_temp c_thermo_press file temp.profile_2800
+
+dump dump_ave all custom ${time} dump.phase id type f_avepos[1] f_avepos[2] f_avepos[3]
+dump dump_ave all custom 5000 dump.phase id type f_avepos[1] f_avepos[2] f_avepos[3]
+
+fix f_npt all npt temp ${CurTemp} ${CurTemp} 10.0 z ${press} ${press} 10.0
+fix f_npt all npt temp 2800 ${CurTemp} 10.0 z ${press} ${press} 10.0
+fix f_npt all npt temp 2800 2800 10.0 z ${press} ${press} 10.0
+fix f_npt all npt temp 2800 2800 10.0 z 1 ${press} 10.0
+fix f_npt all npt temp 2800 2800 10.0 z 1 1 10.0
+
+run ${time}
+run 5000
+Neighbor list info ...
+  update every 50 steps, delay 0 steps, check no
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 10.12
+  ghost atom cutoff = 10.12
+  binsize = 10.12, bins = 2 2 7
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair snap/kk, perpetual
+      attributes: full, newton on, kokkos_device
+      pair build: full/bin/kk/device
+      stencil: full/bin/3d
+      bin: kk/device
+WARNING: Fixes cannot yet send exchange data in Kokkos communication, switching to classic exchange/border communication (src/KOKKOS/comm_kokkos.cpp:581)
+Per MPI rank memory allocation (min/avg/max) = 27.28 | 27.28 | 27.28 Mbytes
+Step Time Temp PotEng TotEng Press Volume 
+       0            0         2800   -10826.328    -10383.69    17558.613    19069.269 
+    1000            1    3303.1087   -10914.945   -10392.773    59622.098     19250.27 
+    2000            2     3194.248   -10910.351   -10405.388    25996.492    19742.482 
+    3000            3    3095.6199   -10900.071     -10410.7    -1425.763    20059.326 
+    4000            4    3010.3791   -10891.728   -10415.832    1793.4639    20276.357 
+    5000            5    2803.0368   -10862.993   -10419.875   -1189.2863    20409.547 
+Loop time of 10.7439 on 1 procs for 5000 steps with 1224 atoms
+
+Performance: 40.209 ns/day, 0.597 hours/ns, 465.379 timesteps/s
+69.0% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 7.241      | 7.241      | 7.241      |   0.0 | 67.40
+Neigh   | 0.076832   | 0.076832   | 0.076832   |   0.0 |  0.72
+Comm    | 0.18238    | 0.18238    | 0.18238    |   0.0 |  1.70
+Output  | 0.0020146  | 0.0020146  | 0.0020146  |   0.0 |  0.02
+Modify  | 3.216      | 3.216      | 3.216      |   0.0 | 29.93
+Other   |            | 0.02566    |            |       |  0.24
+
+Nlocal:           1224 ave        1224 max        1224 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           6305 ave        6305 max        6305 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:              0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:       250576 ave      250576 max      250576 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 250576
+Ave neighs/atom = 204.71895
+Neighbor list builds = 100
+Dangerous builds not checked
+
+#write_dump all custom dump_final.avepos id type f_avepos[1] f_avepos[2] f_avepos[3]
+Total wall time: 0:00:19

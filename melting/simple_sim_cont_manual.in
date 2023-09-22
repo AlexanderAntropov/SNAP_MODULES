@@ -1,0 +1,44 @@
+
+variable time equal 1000
+
+variable T equal 2800
+variable CurTemp equal $T
+variable press equal 1.0 
+variable ceed equal 74651
+
+
+units		metal
+atom_style	atomic
+boundary    p p p
+
+read_data ${RefFile}
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+group nitro type 2
+mass 1 238.02
+mass 2 14.0067
+
+pair_style snap
+pair_coeff * * ${poten}.snapcoeff ${poten}.snapparam U N
+
+
+velocity	all create ${CurTemp} ${ceed}
+
+thermo 1000
+thermo_style custom step time temp pe etotal press vol
+fix mom all momentum 10 linear 1 1 1
+
+compute     unX all property/atom xu yu zu
+
+fix avepos all ave/atom 1 200 200 c_unX[1] c_unX[2] c_unX[3]
+fix 1 all ave/time 1 500 1000 c_thermo_temp c_thermo_press file temp.profile_${CurTemp} 
+
+fix f_npt all npt temp ${CurTemp} ${CurTemp} 10.0 z ${press} ${press} 10.0
+
+dump dump_ave all custom 2000 dump_manual.phase id type f_avepos[1] f_avepos[2] f_avepos[3]  
+
+run ${time}
+

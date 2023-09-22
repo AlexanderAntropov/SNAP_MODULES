@@ -1,0 +1,148 @@
+LAMMPS (3 Mar 2020)
+  using 2 OpenMP thread(s) per MPI task
+
+variable time equal 1000
+
+variable T equal 2800
+variable CurTemp equal $T
+variable CurTemp equal 2800
+variable press equal 1.0
+variable ceed equal 74651
+
+
+units		metal
+atom_style	atomic
+boundary    p p p
+
+read_data two_phase_2023.data
+  orthogonal box = (0 -0.05 -2.61123) to (14.55 20.0471 62.6024)
+  2 by 4 by 16 MPI processor grid
+  reading atoms ...
+  1224 atoms
+  reading velocities ...
+  1224 velocities
+  read_data CPU = 0.0247741 secs
+
+neighbor	4.0 bin
+neigh_modify	every 50 delay 0 check no
+timestep	0.001
+group metal type 1
+612 atoms in group metal
+group nitro type 2
+612 atoms in group nitro
+mass 1 238.02
+mass 2 14.0067
+
+pair_style snap
+pair_coeff * * SNAPotential.snapcoeff SNAPotential.snapparam U N
+SNAP Element = U, Radius 4.5, Weight 1 
+SNAP Element = N, Radius 6.12, Weight 0.46 
+SNAP keyword rcutfac 0.5 
+SNAP keyword twojmax 6 
+SNAP keyword rfac0 0.99363 
+SNAP keyword rmin0 0 
+SNAP keyword quadraticflag 1 
+SNAP keyword bzeroflag 0 
+
+
+velocity	all create ${CurTemp} ${ceed}
+velocity	all create 2800 ${ceed}
+velocity	all create 2800 74651
+
+thermo 1000
+thermo_style custom step time temp pe etotal press vol
+fix mom all momentum 10 linear 1 1 1
+
+compute     unX all property/atom xu yu zu
+
+fix avepos all ave/atom 1 200 200 c_unX[1] c_unX[2] c_unX[3]
+fix 1 all ave/time 1 500 1000 c_thermo_temp c_thermo_press file temp.profile_${CurTemp}
+fix 1 all ave/time 1 500 1000 c_thermo_temp c_thermo_press file temp.profile_2800
+
+fix f_npt all npt temp ${CurTemp} ${CurTemp} 10.0 z ${press} ${press} 10.0
+fix f_npt all npt temp 2800 ${CurTemp} 10.0 z ${press} ${press} 10.0
+fix f_npt all npt temp 2800 2800 10.0 z ${press} ${press} 10.0
+fix f_npt all npt temp 2800 2800 10.0 z 1 ${press} 10.0
+fix f_npt all npt temp 2800 2800 10.0 z 1 1 10.0
+
+run ${time}
+run 1000
+Neighbor list info ...
+  update every 50 steps, delay 0 steps, check no
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 10.12
+  ghost atom cutoff = 10.12
+  binsize = 5.06, bins = 3 4 13
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair snap, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 4.349 | 4.369 | 4.389 Mbytes
+Step Time Temp PotEng TotEng Press Volume 
+       0            0         2800   -10826.328    -10383.69    17558.613    19069.269 
+    1000            1    3303.1092   -10914.945   -10392.773    59621.964     19250.27 
+Loop time of 5.65947 on 256 procs for 1000 steps with 1224 atoms
+
+Performance: 15.266 ns/day, 1.572 hours/ns, 176.695 timesteps/s
+97.5% CPU use with 128 MPI tasks x 2 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 1.8442     | 2.6388     | 4.1363     |  26.5 | 46.63
+Neigh   | 0.0015578  | 0.001928   | 0.0025349  |   0.5 |  0.03
+Comm    | 1.2161     | 2.3147     | 3.2486     |  28.2 | 40.90
+Output  | 7.4863e-05 | 9.794e-05  | 0.00018597 |   0.0 |  0.00
+Modify  | 0.12581    | 0.70297    | 1.3639     |  55.5 | 12.42
+Other   |            | 0.0009161  |            |       |  0.02
+
+Nlocal:    9.5625 ave 14 max 5 min
+Histogram: 2 4 10 22 29 20 18 16 5 2
+Nghost:    1070.6 ave 1199 max 921 min
+Histogram: 8 20 12 8 8 13 10 10 18 21
+Neighs:    0 ave 0 max 0 min
+Histogram: 128 0 0 0 0 0 0 0 0 0
+FullNghs:  2066.56 ave 3266 max 952 min
+Histogram: 5 6 21 20 19 21 11 17 4 4
+
+Total # of neighbors = 264520
+Ave neighs/atom = 216.111
+Neighbor list builds = 20
+Dangerous builds not checked
+
+dump dump_ave all custom 1000 dump.phase id type f_avepos[1] f_avepos[2] f_avepos[3]
+
+run 0
+Per MPI rank memory allocation (min/avg/max) = 5.977 | 6.021 | 6.064 Mbytes
+Step Time Temp PotEng TotEng Press Volume 
+    1000            1    3303.1092   -10914.945   -10392.773    59621.964     19250.27 
+Loop time of 1.21575e-05 on 256 procs for 0 steps with 1224 atoms
+
+31.9% CPU use with 128 MPI tasks x 2 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.216e-05  |            |       |100.00
+
+Nlocal:    9.5625 ave 14 max 5 min
+Histogram: 2 4 10 22 29 20 18 16 5 2
+Nghost:    1070.6 ave 1199 max 921 min
+Histogram: 8 20 12 8 8 13 10 10 18 21
+Neighs:    0 ave 0 max 0 min
+Histogram: 128 0 0 0 0 0 0 0 0 0
+FullNghs:  2066.56 ave 3266 max 952 min
+Histogram: 5 6 21 20 19 21 11 17 4 4
+
+Total # of neighbors = 264520
+Ave neighs/atom = 216.111
+Neighbor list builds = 0
+Dangerous builds not checked
+Total wall time: 0:00:05
